@@ -42,9 +42,6 @@ function App() {
       <header className="header">
         <h1>CampusEats</h1>
         <p className="subtitle">Campus Cafeteria Menu</p>
-        <p className="api-display">
-          API URL: <code>{API || 'Not configured'}</code>
-        </p>
       </header>
 
       <main className="menu-section">

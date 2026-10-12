@@ -20,20 +20,7 @@
 .subtitle {
   color: var(--text-muted, #94a3b8);
   font-size: 16px;
-  margin-bottom: 12px;
-}
-
-.api-display {
-  font-size: 14px;
-  color: var(--text-dim, #64748b);
-}
-
-.api-display code {
-  background: var(--bg-surface, #1e293b);
-  color: #38bdf8;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-family: monospace;
+  margin-bottom: 0;
 }
 
 .menu-section {
