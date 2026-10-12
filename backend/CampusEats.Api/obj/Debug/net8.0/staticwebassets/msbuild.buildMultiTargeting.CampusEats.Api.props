@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\CampusEats.Api.props" />
-</Project>

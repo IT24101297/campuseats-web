@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ASP.NET Core generated files
+**/bin/
+**/obj/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
