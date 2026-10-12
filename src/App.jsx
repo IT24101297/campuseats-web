@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
@@ -6,8 +6,41 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [menuItems, setMenuItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const API = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_API_URL
+
+  const fetchMenu = async () => {
+    if (!API) {
+      setError('VITE_API_URL environment variable is not configured.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const cleanBase = API.replace(/\/$/, '')
+      const response = await fetch(`${cleanBase}/api/menu`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      const data = await response.json()
+      setMenuItems(data)
+    } catch (err) {
+      setError(err.message || 'Failed to fetch menu items')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (API) {
+      fetchMenu()
+    }
+  }, [API])
 
   return (
     <>
@@ -18,9 +51,9 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
+          <h1>CampusEats</h1>
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Connected Backend API URL: <code>{API || 'Not configured'}</code>
           </p>
         </div>
         <button
@@ -30,6 +63,58 @@ function App() {
         >
           Count is {count}
         </button>
+
+        {/* Live Menu Section */}
+        <section className="menu-container">
+          <div className="menu-header">
+            <h2>Campus Menu</h2>
+            <button
+              type="button"
+              className="refresh-btn"
+              onClick={fetchMenu}
+              disabled={loading}
+            >
+              {loading ? 'Refreshing...' : 'Refresh Menu'}
+            </button>
+          </div>
+
+          {loading && (
+            <div className="menu-status loading-state">
+              <span className="spinner"></span> Loading menu items from PostgreSQL...
+            </div>
+          )}
+
+          {error && (
+            <div className="menu-status error-state">
+              <p>⚠️ Error: {error}</p>
+              <button type="button" className="retry-btn" onClick={fetchMenu}>
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && menuItems.length === 0 && (
+            <div className="menu-status empty-state">
+              {API ? 'No menu items found in the database.' : 'Configure VITE_API_URL to load items.'}
+            </div>
+          )}
+
+          {!loading && !error && menuItems.length > 0 && (
+            <div className="menu-grid">
+              {menuItems.map((item) => (
+                <div key={item.id} className="menu-card">
+                  <div className="menu-item-info">
+                    <span className="item-id">#{item.id}</span>
+                    <h3 className="item-name">{item.name}</h3>
+                  </div>
+                  <div className="item-price">
+                    Rs. {Number(item.price).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </section>
 
       <div className="ticks"></div>

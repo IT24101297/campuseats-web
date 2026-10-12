@@ -1,5 +1,7 @@
-
+using CampusEats.Api.Data;
+using CampusEats.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CampusEats.Api.Controllers;
 
@@ -7,17 +9,31 @@ namespace CampusEats.Api.Controllers;
 [Route("api/menu")]
 public class MenuController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult GetMenu()
-    {
-        var menu = new[]
-        {
-            new { Id = 1, Name = "Chicken Rice", Price = 850 },
-            new { Id = 2, Name = "Cheese Kottu", Price = 1200 },
-            new { Id = 3, Name = "Vegetable Fried Rice", Price = 700 },
-            new { Id = 4, Name = "Chicken Burger", Price = 950 }
-        };
+    private readonly CampusEatsDbContext _db;
+    private readonly ILogger<MenuController> _logger;
 
-        return Ok(menu);
+    public MenuController(CampusEatsDbContext db, ILogger<MenuController> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<MenuItem>>> GetMenu()
+    {
+        try
+        {
+            var items = await _db.MenuItems
+                .AsNoTracking()
+                .OrderBy(m => m.Id)
+                .ToListAsync();
+
+            return Ok(items);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve menu items from database.");
+            return StatusCode(500, new { message = "Unable to retrieve menu items at this time. Please try again later." });
+        }
     }
 }
